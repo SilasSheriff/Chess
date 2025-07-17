@@ -1,19 +1,10 @@
 package org.chess.util;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import org.chess.model.*;
 
 import java.awt.*;
 import java.util.HashMap;
 
-@Data
-@Getter
-@Setter
-@AllArgsConstructor
 public class FiguresUtils {
 
 

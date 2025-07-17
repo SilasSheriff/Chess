@@ -1,6 +1,5 @@
 package org.chess.model;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -11,15 +10,12 @@ import org.chess.util.FiguresUtils;
 
 import java.awt.*;
 import java.util.HashMap;
-import java.util.Scanner;
+
 @Data
 @Getter
 @Setter
 @AllArgsConstructor
 public class Bishop implements Figures{
-
-
-
     private Point position;
     private String shortcut = "L";
     private boolean mayBeat = false;
@@ -65,16 +61,23 @@ public class Bishop implements Figures{
         return shortcut;
     }
 
-
     @Override
     public Point getPosition() {
         return position;
     }
-
 
     @Override
     public char getColour() {
         return colour;
     }
 
+    @Override
+    public boolean isMayBeat() {
+        return mayBeat;
+    }
+
+    @Override
+    public void setMayBeat(boolean mayBeat) {
+        this.mayBeat = mayBeat;
+    }
 }

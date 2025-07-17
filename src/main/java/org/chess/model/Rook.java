@@ -20,8 +20,6 @@ public class Rook implements Figures{
     private boolean mayBeat = false;
     private final char colour;
 
-
-
     private boolean wasMoved = false;
 
     public Rook(Point position, char colour){
@@ -62,11 +60,6 @@ public class Rook implements Figures{
     @Override
     public String getShortcut() {
         return "T";
-    }
-
-    @Override
-    public void setMayBeat(boolean setMayBeat) {
-        this.mayBeat = setMayBeat;
     }
 
 

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 import java.awt.*;
 
+@Getter
 public enum Direction {
     NORTH(new Point(0,-1),"n"),
     SOUTH(new Point(0,1),"s"),
@@ -14,7 +15,6 @@ public enum Direction {
     SOUTH_WEST(new Point(-1,1),"sw"),
     SOUTH_EAST(new Point(1,1),"so");
 
-    @Getter
     private final Point vector;
     private final String input;
 

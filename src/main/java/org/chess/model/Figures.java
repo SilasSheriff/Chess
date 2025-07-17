@@ -10,7 +10,7 @@ public interface Figures {
     Point getPosition();
     char getColour();
     String getShortcut();
-
-    void setMayBeat(boolean setter);
     boolean isMayBeat();
+
+    void setMayBeat(boolean mayBeat);
 }
