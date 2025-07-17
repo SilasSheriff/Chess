@@ -1,0 +1,80 @@
+package org.chess.model;
+
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.chess.enums.Direction;
+import org.chess.util.BishopUtils;
+import org.chess.util.FiguresUtils;
+
+import java.awt.*;
+import java.util.HashMap;
+import java.util.Scanner;
+@Data
+@Getter
+@Setter
+@AllArgsConstructor
+public class Bishop implements Figures{
+
+
+
+    private Point position;
+    private String shortcut = "L";
+    private boolean mayBeat = false;
+    private char colour;
+
+    public Bishop(Point position, char colour){
+        this.colour = colour;
+        this.position = position;
+    }
+
+    @Override
+    public int move(HashMap<String,Figures> figuresMap) {
+
+        String input = BishopUtils.askDirectionInput();
+        Direction direction = Direction.fromInput(input);
+
+        if (direction == null){
+            System.out.println("ungültige Richtung");
+            return -1;
+        }
+
+        Point moveVector = direction.getVector();
+        this.setMayBeat(false);
+
+        int allowedDistance = BishopUtils.calculateAllowedDistance(moveVector,figuresMap,this);
+        if (allowedDistance <1){
+            System.out.println("Ungültiger Zug");
+            return -1;
+        }
+
+        int distance = BishopUtils.askDistanceInput(allowedDistance,this);
+        if(distance > allowedDistance){
+            System.out.println("Zu weit");
+            return -1;
+        }
+        Point translationVector = new Point(moveVector.x *distance,moveVector.y*distance);
+        FiguresUtils.updatePosition(this,figuresMap,translationVector);
+        return 0;
+    }
+
+    @Override
+    public String getShortcut() {
+        return shortcut;
+    }
+
+
+    @Override
+    public Point getPosition() {
+        return position;
+    }
+
+
+    @Override
+    public char getColour() {
+        return colour;
+    }
+
+}
