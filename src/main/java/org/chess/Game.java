@@ -1,8 +1,6 @@
 package org.chess;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+
 import org.chess.model.Figures;
 import org.chess.util.BoardUtils;
 
@@ -11,13 +9,11 @@ import java.util.Scanner;
 
 import static org.chess.util.BoardUtils.chooseFigureToMove;
 
-@Data
-@Getter
-@Setter
 public class Game {
     private String activePlayer;
     private HashMap<String, Figures> figuresMap;
-    private int gameStatus = 0;
+    private boolean checkWhite = false;
+    private boolean checkBlack = false;
 
     Game(HashMap<String, Figures> figuresMap) {
         this.figuresMap = figuresMap;
@@ -29,7 +25,7 @@ public class Game {
         Scanner scanner = new Scanner(System.in);
         BoardUtils.displayBoard(positionMap);
         while (!end.equals("j")){
-            gameStatus = chooseFigureToMove(positionMap,activePlayer);
+            int gameStatus = chooseFigureToMove(positionMap, activePlayer);
             BoardUtils.displayBoard(positionMap);
             if (gameStatus == -1) {
                 continue;
@@ -43,5 +39,29 @@ public class Game {
                 activePlayer = "Weiss";
             }
         }
+    }
+
+    public HashMap<String, Figures> getFiguresMap() {
+        return figuresMap;
+    }
+
+    public void setFiguresMap(HashMap<String, Figures> figuresMap) {
+        this.figuresMap = figuresMap;
+    }
+
+    public boolean isCheckBlack() {
+        return checkBlack;
+    }
+
+    public void setCheckBlack(boolean checkBlack) {
+        this.checkBlack = checkBlack;
+    }
+
+    public boolean isCheckWhite() {
+        return checkWhite;
+    }
+
+    public void setCheckWhite(boolean checkWhite) {
+        this.checkWhite = checkWhite;
     }
 }

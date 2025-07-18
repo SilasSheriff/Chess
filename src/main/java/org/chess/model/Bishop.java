@@ -1,43 +1,38 @@
 package org.chess.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.chess.enums.Direction;
 import org.chess.util.BishopUtils;
 import org.chess.util.FiguresUtils;
 
 import java.awt.*;
 import java.util.HashMap;
 
-@Data
-@Getter
-@Setter
-@AllArgsConstructor
 public class Bishop implements Figures{
-    private Point position;
-    private String shortcut = "L";
+    private final Point position;
     private boolean mayBeat = false;
-    private char colour;
+    private final char colour;
+    private final HashMap<String,Point> directionMap = new HashMap<>();
 
     public Bishop(Point position, char colour){
         this.colour = colour;
         this.position = position;
+        directionMap.put("no",new Point(1,-1));
+        directionMap.put("so",new Point(1,1));
+        directionMap.put("nw",new Point(-1,-1));
+        directionMap.put("sw",new Point(-1,1));
     }
 
     @Override
     public int move(HashMap<String,Figures> figuresMap) {
 
-        String input = BishopUtils.askDirectionInput();
-        Direction direction = Direction.fromInput(input);
-
-        if (direction == null){
+        HashMap<String,String> directionDistanceMap = BishopUtils.checkPossibleMove(this,figuresMap);
+        String input = BishopUtils.askDirectionInput(directionDistanceMap);
+        Point moveVector = FiguresUtils.mapInputToVector(input,directionMap);
+        if (moveVector == null){
             System.out.println("ungültige Richtung");
             return -1;
         }
 
-        Point moveVector = direction.getVector();
+
         this.setMayBeat(false);
 
         int allowedDistance = BishopUtils.calculateAllowedDistance(moveVector,figuresMap,this);
@@ -46,7 +41,7 @@ public class Bishop implements Figures{
             return -1;
         }
 
-        int distance = BishopUtils.askDistanceInput(allowedDistance,this);
+        int distance = BishopUtils.askDistanceInput(allowedDistance);
         if(distance > allowedDistance){
             System.out.println("Zu weit");
             return -1;
@@ -58,7 +53,7 @@ public class Bishop implements Figures{
 
     @Override
     public String getShortcut() {
-        return shortcut;
+        return "L";
     }
 
     @Override
@@ -79,5 +74,10 @@ public class Bishop implements Figures{
     @Override
     public void setMayBeat(boolean mayBeat) {
         this.mayBeat = mayBeat;
+    }
+
+    @Override
+    public HashMap<String, Point> getDirectionMap() {
+        return directionMap;
     }
 }

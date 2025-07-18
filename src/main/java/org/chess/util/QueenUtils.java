@@ -1,18 +1,22 @@
 package org.chess.util;
 
+import org.chess.model.Bishop;
 import org.chess.model.Figures;
 import org.chess.model.Queen;
 
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class QueenUtils {
-    public static String askDirectionInput() {
+    public static String askDirectionInput(HashMap<String,String> directionDistanceMap) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("In welche Richtung soll die Dame sich bewegen? <NO>, <SO>, <NW>," +
-                " <SW>, <N>, <S>, <W>, <O>");
+        System.out.print("In welche Richtung soll die Dame sich bewegen? ");
+        for (Map.Entry<String,String> entry : directionDistanceMap.entrySet()){
+            System.out.print("<" + entry.getKey() + "> " + entry.getValue() + ", ");
+        }
         return scanner.nextLine().trim().toLowerCase();
     }
 
@@ -27,8 +31,22 @@ public class QueenUtils {
         if (allowedDistance < 1){
             System.out.println("Ungültiger Zug");
         }
-        System.out.println("Wie weit soll die Dame sich bewegen? (max: " + allowedDistance + ", Schlagen: " +queen.isMayBeat() + ")");
+        System.out.println("Wie weit soll die Dame sich bewegen? ");
         return scanner.nextInt();
+    }
+
+    public static HashMap<String,String> checkPossibleMove(Queen queen, HashMap<String, Figures> figuresMap) {
+        HashMap<String,String> directionDistanceMap = new HashMap<>();
+        for(Map.Entry<String,Point> entry : queen.getDirectionMap().entrySet()){
+            int allowedDistance = calculateAllowedDistance(entry.getValue(), figuresMap, queen);
+            if (allowedDistance > 0){
+                directionDistanceMap.put(entry.getKey(),"(max: " + allowedDistance + " Schlagen: " + queen.isMayBeat() + ")");
+            }
+        }
+        if (directionDistanceMap.isEmpty()){
+            System.out.println("Die Dame kann nicht bewegt werden");
+        }
+        return directionDistanceMap;
     }
 
 }

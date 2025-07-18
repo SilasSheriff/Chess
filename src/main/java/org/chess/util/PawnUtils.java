@@ -1,18 +1,22 @@
 package org.chess.util;
 
-import org.chess.enums.Direction;
 import org.chess.model.Figures;
+import org.chess.model.King;
 import org.chess.model.Pawn;
 
 import java.awt.*;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 public class PawnUtils {
 
-    public static String askDirectionInput() {
+    public static String askDirectionInput(HashMap<String,String> directionDistanceMap) {
         Scanner scanner = new Scanner(System.in);
-        System.out.println("In welche Richtung soll der Bauer sich bewegen? <v>, <2v>, <ao, <aw>");
+        System.out.print("In welche Richtung soll der Bauer sich bewegen? ");
+        for (Map.Entry<String,String> entry : directionDistanceMap.entrySet()){
+            System.out.print("<" + entry.getKey() + "> " + entry.getValue() + ", ");
+        }
         return scanner.nextLine().trim().toLowerCase();
     }
 
@@ -50,10 +54,10 @@ public class PawnUtils {
         return 0;
     }
     public static Point handlePawnMove(Pawn pawn, String input) {
-        Direction direction = switch (input) {
-            case "v", "2v" -> Direction.SOUTH;
-            case "aw" -> Direction.SOUTH_WEST;
-            case "ao" -> Direction.SOUTH_EAST;
+        Point direction = switch (input) {
+            case "v", "2v" -> new Point(0,1);
+            case "aw" -> new Point(-1,1);
+            case "ao" -> new Point(1,1);
             default -> null;
         };
 
@@ -62,24 +66,35 @@ public class PawnUtils {
             return new Point(0, 0);
         }
 
-        // Neue Kopie erstellen, um die enum-Konstanten nicht zu verändern
-        Point moveVector = new Point(direction.getVector());
-
         if (pawn.getColour() == 'w') {
-            moveVector.y *= -1;
+            direction.y *= -1;
         }
 
         if (input.equals("2v")) {
             if (pawn.getPosition().y == pawn.getBaseline()) {
-                moveVector.y *= 2;
+                direction.y *= 2;
             } else {
                 System.out.println("Doppelschritt nur von der Grundlinie erlaubt.");
                 return new Point(0, 0);
             }
         }
 
-        return moveVector;
+        return direction;
     }
-
+    public static HashMap<String,String> checkPossibleMove(Pawn pawn, HashMap<String, Figures> figuresMap) {
+        HashMap<String,String> directionDistanceMap = new HashMap<>();
+        for(Map.Entry<String,Point> entry : pawn.getDirectionMap().entrySet()){
+            Point moveVector = handlePawnMove(pawn,entry.getKey());
+            pawn.setMayBeat(false);
+            int allowedDistance = checkObstaclePawn(figuresMap,pawn,moveVector);
+            if (allowedDistance > 0){
+                directionDistanceMap.put(entry.getKey(),"(max: " + allowedDistance + " Schlagen: " + pawn.isMayBeat() + ")");
+            }
+        }
+        if (directionDistanceMap.isEmpty()){
+            System.out.println("Der Bauer kann nicht bewegt werden");
+        }
+        return directionDistanceMap;
+    }
 
 }

@@ -1,42 +1,40 @@
 package org.chess.model;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.chess.enums.Direction;
 import org.chess.util.FiguresUtils;
 import org.chess.util.RookUtils;
 
 import java.awt.*;
 import java.util.HashMap;
-@Data
-@Getter
-@Setter
-@AllArgsConstructor
+
 public class Rook implements Figures{
     private final Point position;
     private boolean mayBeat = false;
     private final char colour;
-
+    private final HashMap<String,Point> directionMap = new HashMap<>();
     private boolean wasMoved = false;
 
     public Rook(Point position, char colour){
         this.colour = colour;
         this.position = position;
+        directionMap.put("n",new Point(0,-1));
+        directionMap.put("s",new Point(0,1));
+        directionMap.put("o",new Point(1,0));
+        directionMap.put("w",new Point(-1,0));
     }
 
     @Override
     public int move(HashMap<String,Figures> figuresMap) {
-        String input = RookUtils.askDirectionInput();
-        Direction direction = Direction.fromInput(input);
+        HashMap<String,String> directionDistanceMap = RookUtils.checkPossibleMove(this,figuresMap);
 
-        if (direction == null){
+        String input = RookUtils.askDirectionInput(directionDistanceMap);
+        Point moveVector = FiguresUtils.mapInputToVector(input,directionMap);
+
+        if (moveVector == null){
             System.out.println("ungültige Richtung");
             return -1;
         }
-        Point moveVector = direction.getVector();
+
         this.setMayBeat(false);
 
         int allowedDistance = RookUtils.calculateAllowedDistance(moveVector,figuresMap,this);
@@ -74,4 +72,26 @@ public class Rook implements Figures{
         return colour;
     }
 
+    @Override
+    public void setMayBeat(boolean mayBeat) {
+        this.mayBeat = mayBeat;
+    }
+
+    @Override
+    public boolean isMayBeat() {
+        return mayBeat;
+    }
+
+    @Override
+    public HashMap<String,Point> getDirectionMap() {
+        return directionMap;
+    }
+
+    public boolean isWasMoved() {
+        return wasMoved;
+    }
+
+    public void setWasMoved(boolean wasMoved) {
+        this.wasMoved = wasMoved;
+    }
 }

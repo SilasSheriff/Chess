@@ -22,17 +22,6 @@
             <artifactId>mapstruct</artifactId>
             <version>1.5.3.Final</version> <!-- oder die aktuelle Version -->
         </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
 </project>

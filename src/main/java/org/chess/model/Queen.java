@@ -1,42 +1,44 @@
 package org.chess.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.chess.enums.Direction;
 import org.chess.util.FiguresUtils;
 import org.chess.util.QueenUtils;
 
 import java.awt.*;
 import java.util.HashMap;
 
-@Data
-@Getter
-@Setter
-@AllArgsConstructor
+
 public class Queen implements Figures{
     private boolean mayBeat = false;
     private final Point position;
     private final char colour;
+    private final HashMap<String,Point> directionMap = new HashMap<>();
 
     public Queen(Point position, char colour){
         this.colour = colour;
         this.position = position;
+        directionMap.put("no",new Point(1,-1));
+        directionMap.put("so",new Point(1,1));
+        directionMap.put("nw",new Point(-1,-1));
+        directionMap.put("sw",new Point(-1,1));
+        directionMap.put("n",new Point(0,-1));
+        directionMap.put("s",new Point(0,1));
+        directionMap.put("w",new Point(-1,0));
+        directionMap.put("o",new Point(1,0));
     }
 
     @Override
     public int move(HashMap<String,Figures> figuresMap) {
-        String input = QueenUtils.askDirectionInput();
-        Direction direction = Direction.fromInput(input);
+        HashMap<String,String> directionDistanceMap = QueenUtils.checkPossibleMove(this,figuresMap);
+        String input = QueenUtils.askDirectionInput(directionDistanceMap);
+        Point moveVector = FiguresUtils.mapInputToVector(input,directionMap);
 
-        if (direction == null){
+        if (moveVector == null){
             System.out.println("ungültige Richtung");
             return -1;
         }
         this.setMayBeat(false);
 
-        Point moveVector = direction.getVector();
+
         int allowedDistance = QueenUtils.calculateAllowedDistance(moveVector,figuresMap,this);
         if(allowedDistance < 1){
             System.out.println("Ungültiger Zug");
@@ -82,5 +84,10 @@ public class Queen implements Figures{
     @Override
     public void setMayBeat(boolean mayBeat) {
         this.mayBeat = mayBeat;
+    }
+
+    @Override
+    public HashMap<String,Point> getDirectionMap() {
+        return directionMap;
     }
 }

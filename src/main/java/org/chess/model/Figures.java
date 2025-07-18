@@ -11,6 +11,7 @@ public interface Figures {
     char getColour();
     String getShortcut();
     boolean isMayBeat();
+    HashMap<String, Point> getDirectionMap();
 
     void setMayBeat(boolean mayBeat);
 }

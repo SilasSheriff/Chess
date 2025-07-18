@@ -1,12 +1,15 @@
 package org.chess.util;
 
-import org.chess.model.*;
 
-import java.awt.*;
+import org.chess.model.Figures;
+import org.chess.model.King;
+import org.chess.model.Rook;
+import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class FiguresUtils {
-
 
     public static int checkObstacle(HashMap<String, Figures> figuresMap, Figures figure, Point direction) {
         int x = figure.getPosition().x;
@@ -59,6 +62,11 @@ public class FiguresUtils {
         }
     }
 
+
+    public static Point mapInputToVector(String input, HashMap<String,Point> directionMap) {
+        return directionMap.get(input);
+    }
+
     public static int handleCastling(HashMap<String, Figures> figuresMap, String activePlayer, String chosenCoordinates) {
         int gameStatus;
         switch (chosenCoordinates) {
@@ -76,26 +84,30 @@ public class FiguresUtils {
     }
 
     public static int checkCastling(Rook rook, King king) {
+        if (king.isWasMoved() || rook.isWasMoved()) {
+            System.out.println("König oder Turm schon bewegt");
+            return -1;
+        }
         return 0;
     }
 
     private static int handleSmallCastling(HashMap<String, Figures> figuresMap, String activePlayer) {
         King king;
         Rook rook;
+        int gameStatus;
         switch (activePlayer) {
             case "Weiss" -> {
                 if (figuresMap.get("7,7") instanceof Rook && figuresMap.get("4,7") instanceof King) {
                     rook = (Rook) figuresMap.get("7,7");
                     king = (King) figuresMap.get("4,7");
                 } else return -1;
-                if (king.isWasMoved() || rook.isWasMoved()) {
-                    System.out.println("König oder Turm schon bewegt");
-                    return -1;
-                }
+
                 if (figuresMap.containsKey("5,7") || figuresMap.containsKey("6,7")) {
                     System.out.println("Felder blockiert");
                     return -1;
                 }
+                gameStatus = FiguresUtils.checkCastling(rook,king);
+                if (gameStatus != 0) return gameStatus;
                 FiguresUtils.updatePosition(rook,figuresMap,new Point(-2,0));
                 FiguresUtils.updatePosition(king,figuresMap,new Point(2,0));
                 return 0;
@@ -106,10 +118,9 @@ public class FiguresUtils {
                     king = (King) figuresMap.get("4,0");
                 } else return -1;
 
-                if (king.isWasMoved() || rook.isWasMoved()) {
-                    System.out.println("König oder Turm schon bewegt");
-                    return -1;
-                }
+                gameStatus = FiguresUtils.checkCastling(rook, king);
+                if (gameStatus != 0) return gameStatus;
+
                 if (figuresMap.containsKey("5,0") || figuresMap.containsKey("6,0")) {
                     System.out.println("Felder blockiert");
                     return -1;
@@ -125,16 +136,15 @@ public class FiguresUtils {
     private static int handleBigCastling(HashMap<String, Figures> figuresMap, String activePlayer) {
         King king;
         Rook rook;
+        int gameStatus;
         switch (activePlayer) {
             case "Weiss" -> {
                 if (figuresMap.get("0,7") instanceof Rook && figuresMap.get("4,7") instanceof King) {
                     rook = (Rook) figuresMap.get("0,7");
                     king = (King) figuresMap.get("4,7");
                 } else return -1;
-                if (king.isWasMoved() || rook.isWasMoved()) {
-                    System.out.println("König oder Turm schon bewegt");
-                    return -1;
-                }
+                gameStatus = FiguresUtils.checkCastling(rook, king);
+                if (gameStatus != 0) return gameStatus;
                 if (figuresMap.containsKey("1,7") || figuresMap.containsKey("2,7") || figuresMap.containsKey("3,7")) {
                     System.out.println("Felder blockiert");
                     return -1;
@@ -149,10 +159,9 @@ public class FiguresUtils {
                     king = (King) figuresMap.get("4,0");
                 } else return -1;
 
-                if (king.isWasMoved() || rook.isWasMoved()) {
-                    System.out.println("König oder Turm schon bewegt");
-                    return -1;
-                }
+                gameStatus = FiguresUtils.checkCastling(rook,king);
+
+                if (gameStatus != 0) return gameStatus;
                 if (figuresMap.containsKey("1,0") || figuresMap.containsKey("2,0") || figuresMap.containsKey("3,0")) {
                     System.out.println("Felder blockiert");
                     return -1;
