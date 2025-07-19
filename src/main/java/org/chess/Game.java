@@ -2,9 +2,13 @@ package org.chess;
 
 
 import org.chess.model.Figures;
+import org.chess.model.King;
 import org.chess.util.BoardUtils;
+import org.chess.util.KingUtils;
 
+import java.awt.*;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static org.chess.util.BoardUtils.chooseFigureToMove;
@@ -40,6 +44,16 @@ public class Game {
             }
         }
     }
+
+    private void handleCheck(){
+        King king = KingUtils.geKingPosition(figuresMap,activePlayer.toLowerCase().charAt(0));
+        Point kingPos = Objects.requireNonNull(king).getPosition();
+    }
+
+
+
+
+
 
     public HashMap<String, Figures> getFiguresMap() {
         return figuresMap;
