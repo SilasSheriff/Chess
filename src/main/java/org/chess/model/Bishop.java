@@ -1,12 +1,14 @@
 package org.chess.model;
 
 import org.chess.util.BishopUtils;
-import org.chess.util.FiguresUtils;
+import org.chess.util.PieceUtils;
+import org.chess.util.PointUtils;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Bishop implements Figures{
+public class Bishop implements Pieces {
     private final Point position;
     private boolean mayBeat = false;
     private final char colour;
@@ -22,33 +24,55 @@ public class Bishop implements Figures{
     }
 
     @Override
-    public int move(HashMap<String,Figures> figuresMap) {
+    public int move(HashMap<String, Pieces> piecesMap) {
 
-        HashMap<String,String> directionDistanceMap = BishopUtils.checkPossibleMove(this,figuresMap);
+        HashMap<String,String> directionDistanceMap = BishopUtils.checkPossibleMove(piecesMap,this);
+        if (directionDistanceMap.isEmpty()){
+            return -1;
+        }
         String input = BishopUtils.askDirectionInput(directionDistanceMap);
-        Point moveVector = FiguresUtils.mapInputToVector(input,directionMap);
+        Point moveVector = PieceUtils.mapInputToVector(input,directionMap);
         if (moveVector == null){
             System.out.println("ungültige Richtung");
             return -1;
         }
 
-
-        this.setMayBeat(false);
-
-        int allowedDistance = BishopUtils.calculateAllowedDistance(moveVector,figuresMap,this);
-        if (allowedDistance <1){
-            System.out.println("Ungültiger Zug");
+        ArrayList<Integer> allowedDistances = BishopUtils.calculateAllowedDistances(piecesMap,this, moveVector);
+        if (allowedDistances.isEmpty()){
             return -1;
         }
 
-        int distance = BishopUtils.askDistanceInput(allowedDistance);
-        if(distance > allowedDistance){
-            System.out.println("Zu weit");
+        int distance = BishopUtils.askDistanceInput(allowedDistances);
+        if (!allowedDistances.contains(distance)) {
+            System.out.println("Unzulässige Distanz");
+            this.setMayBeat(false);
             return -1;
         }
         Point translationVector = new Point(moveVector.x *distance,moveVector.y*distance);
-        FiguresUtils.updatePosition(this,figuresMap,translationVector);
+        PieceUtils.updatePosition(this, piecesMap,translationVector);
+        this.setMayBeat(false);
         return 0;
+    }
+
+    @Override
+    public boolean movePossible(HashMap<String,Pieces> piecesMap){
+        ArrayList<Point> dir = PointUtils.diagonal();
+        for (Point p : dir){
+            ArrayList<Integer> allowed = BishopUtils.calculateAllowedDistances(piecesMap,this,p);
+            if(allowed != null && !allowed.isEmpty()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    public Bishop clone(){
+        Point clonedPosition = new Point(this.position.x,this.position.y);
+        Bishop clonedBishop = new Bishop(clonedPosition,this.colour);
+        clonedBishop.mayBeat = this.mayBeat;
+
+        return clonedBishop;
     }
 
     @Override

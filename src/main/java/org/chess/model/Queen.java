@@ -1,13 +1,16 @@
 package org.chess.model;
 
-import org.chess.util.FiguresUtils;
+import org.chess.util.BishopUtils;
+import org.chess.util.PieceUtils;
+import org.chess.util.PointUtils;
 import org.chess.util.QueenUtils;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class Queen implements Figures{
+public class Queen implements Pieces {
     private boolean mayBeat = false;
     private final Point position;
     private final char colour;
@@ -27,10 +30,14 @@ public class Queen implements Figures{
     }
 
     @Override
-    public int move(HashMap<String,Figures> figuresMap) {
-        HashMap<String,String> directionDistanceMap = QueenUtils.checkPossibleMove(this,figuresMap);
+    public int move(HashMap<String, Pieces> piecesMap) {
+        mayBeat = false;
+        HashMap<String,String> directionDistanceMap = QueenUtils.checkPossibleMove(this, piecesMap);
+        if (directionDistanceMap.isEmpty()){
+            return -1;
+        }
         String input = QueenUtils.askDirectionInput(directionDistanceMap);
-        Point moveVector = FiguresUtils.mapInputToVector(input,directionMap);
+        Point moveVector = PieceUtils.mapInputToVector(input,directionMap);
 
         if (moveVector == null){
             System.out.println("ungültige Richtung");
@@ -39,20 +46,41 @@ public class Queen implements Figures{
         this.setMayBeat(false);
 
 
-        int allowedDistance = QueenUtils.calculateAllowedDistance(moveVector,figuresMap,this);
-        if(allowedDistance < 1){
+        ArrayList<Integer> allowedDistance = QueenUtils.calculateAllowedDistance( piecesMap,this,moveVector);
+        if(allowedDistance.isEmpty()){
             System.out.println("Ungültiger Zug");
             return -1;
         }
-        int distance = QueenUtils.askDistanceInput(allowedDistance,this);
-        if(distance > allowedDistance){
-            System.out.println("Zu weit");
+        int distance = QueenUtils.askDistanceInput(allowedDistance);
+        if(!allowedDistance.contains(distance)){
+            System.out.println("Ungültige Distanz");
             return -1;
         }
 
         Point translationVector = new Point(moveVector.x*distance, moveVector.y*distance);
-        FiguresUtils.updatePosition(this,figuresMap,translationVector);
+        PieceUtils.updatePosition(this, piecesMap,translationVector);
         return 0;
+    }
+
+    @Override
+    public boolean movePossible(HashMap<String,Pieces> piecesMap){
+        ArrayList<Point> dir = PointUtils.straightAndDiagonal();
+        for (Point p : dir){
+            ArrayList<Integer> allowed = QueenUtils.calculateAllowedDistance(piecesMap,this,p);
+            if(allowed != null && !allowed.isEmpty()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public Queen clone(){
+            Point clonedPosition = new Point(this.position.x,this.position.y);
+            Queen clonedQueen = new Queen(clonedPosition,this.colour);
+            clonedQueen.mayBeat = this.mayBeat;
+
+            return clonedQueen;
     }
 
     @Override

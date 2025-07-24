@@ -1,6 +1,6 @@
 package org.chess.util;
 
-import org.chess.model.Figures;
+import org.chess.model.Pieces;
 import org.chess.model.Rook;
 
 import java.awt.*;
@@ -21,16 +21,16 @@ public class RookUtils {
             return scanner.nextLine().trim().toLowerCase();
         }
 
-        public static int calculateAllowedDistance(Point moveVector, HashMap<String, Figures> figuresMap, Rook rook){
-            return FiguresUtils.checkObstacle(figuresMap, rook, moveVector);
+        public static ArrayList<Integer> calculateAllowedDistance(HashMap<String, Pieces> piecesMap,  Rook rook,Point moveVector){
+            return PieceUtils.checkObstacle(piecesMap, rook, moveVector);
         }
 
-        public static HashMap<String,String> checkPossibleMove(Rook rook, HashMap<String, Figures> figuresMap) {
+        public static HashMap<String,String> checkPossibleMove(Rook rook, HashMap<String, Pieces> piecesMap) {
             HashMap<String,String> directionDistanceMap = new HashMap<>();
             for(Map.Entry<String,Point> entry : rook.getDirectionMap().entrySet()){
-                int allowedDistance = calculateAllowedDistance(entry.getValue(), figuresMap, rook);
-                if (allowedDistance > 0){
-                    directionDistanceMap.put(entry.getKey(),"(max: " + allowedDistance + " Schlagen: " + rook.isMayBeat() + ")");
+                ArrayList<Integer> allowedDistances = calculateAllowedDistance(piecesMap, rook,entry.getValue());
+                if (!allowedDistances.isEmpty()){
+                    directionDistanceMap.put(entry.getKey(),"(" + PieceUtils.arraylistUnwrapping(allowedDistances) + "/ Schlagen: " + rook.isMayBeat() + ")");
                 }
             }
             if (directionDistanceMap.isEmpty()){
@@ -39,13 +39,13 @@ public class RookUtils {
         return directionDistanceMap;
     }
 
-    public static int askDistanceInput(int allowedDistance, Rook rook) {
+    public static int askDistanceInput(ArrayList<Integer> allowedDistance) {
 
         Scanner scanner = new Scanner(System.in);
-        if (allowedDistance < 1){
+        if (allowedDistance.isEmpty()){
             System.out.println("Ungültiger Zug");
         }
-        System.out.println("Wie weit soll der Turm sich bewegen?)");
+        System.out.println("Wie weit soll der Turm sich bewegen?");
         return scanner.nextInt();
     }
 

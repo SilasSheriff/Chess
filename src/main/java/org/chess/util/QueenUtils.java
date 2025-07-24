@@ -1,11 +1,11 @@
 package org.chess.util;
 
-import org.chess.model.Bishop;
-import org.chess.model.Figures;
+import org.chess.model.Pieces;
 import org.chess.model.Queen;
 
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -21,26 +21,28 @@ public class QueenUtils {
     }
 
 
-    public static int calculateAllowedDistance(Point moveVector, HashMap<String, Figures> figuresMap, Queen queen){
-        return FiguresUtils.checkObstacle(figuresMap, queen, moveVector);
+    public static ArrayList<Integer> calculateAllowedDistance(HashMap<String, Pieces> piecesMap,  Queen queen, Point moveVector){
+        return PieceUtils.checkObstacle(piecesMap, queen, moveVector);
     }
 
-    public static int askDistanceInput( int allowedDistance, Queen queen) {
+    public static int askDistanceInput( ArrayList<Integer> allowedDistance) {
 
         Scanner scanner = new Scanner(System.in);
-        if (allowedDistance < 1){
+        if (allowedDistance.isEmpty()){
             System.out.println("Ungültiger Zug");
         }
         System.out.println("Wie weit soll die Dame sich bewegen? ");
         return scanner.nextInt();
     }
 
-    public static HashMap<String,String> checkPossibleMove(Queen queen, HashMap<String, Figures> figuresMap) {
+    public static HashMap<String,String> checkPossibleMove(Queen queen, HashMap<String, Pieces> piecesMap) {
         HashMap<String,String> directionDistanceMap = new HashMap<>();
+
+        System.out.println(queen.isMayBeat());
         for(Map.Entry<String,Point> entry : queen.getDirectionMap().entrySet()){
-            int allowedDistance = calculateAllowedDistance(entry.getValue(), figuresMap, queen);
-            if (allowedDistance > 0){
-                directionDistanceMap.put(entry.getKey(),"(max: " + allowedDistance + " Schlagen: " + queen.isMayBeat() + ")");
+            ArrayList<Integer> allowedPos = calculateAllowedDistance(piecesMap,  queen,entry.getValue());
+            if (!allowedPos.isEmpty()){
+                directionDistanceMap.put(entry.getKey(),"(" + PieceUtils.arraylistUnwrapping(allowedPos) + " Schlagen: " + queen.isMayBeat() + ")");
             }
         }
         if (directionDistanceMap.isEmpty()){
@@ -48,5 +50,4 @@ public class QueenUtils {
         }
         return directionDistanceMap;
     }
-
 }

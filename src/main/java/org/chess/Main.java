@@ -8,12 +8,12 @@ import java.util.HashMap;
 
 public class Main {
         public void run() {
-            ArrayList<Figures> figures = BoardUtils.implementStandardChessBoard();
-            HashMap<String, Figures> figuresMap = BoardUtils.mapFiguresToString(figures);
+            ArrayList<Pieces> figures = BoardUtils.implementStandardChessBoard();
+            HashMap<String, Pieces> piecesMap = BoardUtils.mapFiguresToString(figures);
 
-            Game firstGame = new Game(figuresMap);
+            Game firstGame = new Game(piecesMap);
 
-            firstGame.playGame(figuresMap);
+            firstGame.playGame();
 
         }
 

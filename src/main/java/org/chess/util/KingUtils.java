@@ -1,12 +1,10 @@
 package org.chess.util;
 
-import org.chess.model.Bishop;
-import org.chess.model.Figures;
-import org.chess.model.King;
-import org.chess.model.Queen;
+import org.chess.model.*;
 
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -22,14 +20,18 @@ public class KingUtils {
         return scanner.nextLine().trim().toLowerCase();
     }
 
-    public static boolean isPathFree(HashMap<String, Figures> figuresMap, Figures figure, Point moveVector) {
-        return FiguresUtils.checkObstacle(figuresMap, figure, moveVector) != 0;
+    public static boolean isLegalMove(HashMap<String, Pieces> piecesMap, King king, Point moveVector) {
+        ArrayList<Integer> result = PieceUtils.checkObstacle(piecesMap, king, moveVector);
+        if (result == null) return false;
+
+        boolean noNeighbouringKing = inhibitKingsAsNeighbours(king, piecesMap, moveVector);
+        return !result.isEmpty() && noNeighbouringKing;
     }
 
-    public static HashMap<String, String> checkPossibleMove(King king, HashMap<String, Figures> figuresMap) {
+    public static HashMap<String, String> checkPossibleMove(King king, HashMap<String, Pieces> piecesMap) {
         HashMap<String, String> directionDistanceMap = new HashMap<>();
         for (Map.Entry<String, Point> entry : king.getDirectionMap().entrySet()) {
-            boolean allowedMove = isPathFree(figuresMap, king, entry.getValue());
+            boolean allowedMove = isLegalMove(piecesMap, king, entry.getValue());
             if (allowedMove) {
                 directionDistanceMap.put(entry.getKey(), "(Schlagen: " + king.isMayBeat() + ")");
             }
@@ -40,8 +42,8 @@ public class KingUtils {
         return directionDistanceMap;
     }
 
-    public static King geKingPosition(HashMap<String, Figures> figuresMap, char colour) {
-        for (Figures figure : figuresMap.values()) {
+    public static King getKingPosition(HashMap<String, Pieces> piecesMap, char colour) {
+        for (Pieces figure : piecesMap.values()) {
             if (figure instanceof King && figure.getColour() == colour) {
                 return (King) figure;
             }
@@ -49,23 +51,100 @@ public class KingUtils {
         return null;
     }
 
-    public static boolean checkForBishopCheck(King king, HashMap<String, Figures> figuresMap) {
-        boolean checkBishop = false;
-        String coordinate = " ";
-        Point positionIncrement = king.getPosition();
-        for(int i = 0; i < 8; i++) {
-            positionIncrement =PointUtils.add(positionIncrement,new Point(1,1));
-            coordinate = positionIncrement.x + "," + positionIncrement.y;
-            if(figuresMap.get(coordinate) instanceof Bishop && figuresMap.get(coordinate).getColour() != king.getColour()) {
-                return true;
-            }
-            if(figuresMap.get(coordinate) instanceof Queen && figuresMap.get(coordinate).getColour() != king.getColour()) {
-                return true;
-            }
-            if(figuresMap.get(coordinate).getColour() == king.getColour()) {
+    private static boolean inhibitKingsAsNeighbours(King king, HashMap<String, Pieces> piecesMap, Point direction){
+        ArrayList<Point> neighbourPoints = PointUtils.straightAndDiagonal();
+        Point targetPoint = PointUtils.add(king.getPosition(),direction);
+        for (Point p : neighbourPoints){
+            String coordinate = (targetPoint.x + p.x) + "," + (targetPoint.y + p.y);
+            if (piecesMap.get(coordinate) instanceof King && piecesMap.get(coordinate).getColour() != king.getColour()){
                 return false;
             }
         }
-        return false;
+        return true;
     }
+
+
+    public static ArrayList<Point> threatDirections(King king, HashMap<String,Pieces> piecesMap){
+        ArrayList<Point> threatDirections = new ArrayList<>();
+        boolean threats;
+        for (Point dir : PointUtils.straightAndDiagonal()){
+             threats = checkForRookBishopQueenCheck(king,piecesMap,dir);
+             if(threats){
+                 threatDirections.add(dir);
+             }
+        }
+
+        for (Point dir : PointUtils.knightsDirections()){
+            threats = checkForKnightCheck(king,piecesMap,dir);
+            if (threats){
+                threatDirections.add(dir);
+            }
+        }
+
+        threatDirections.addAll(checkForPawnCheck(king,piecesMap));
+
+        return threatDirections;
+    }
+
+    private static boolean checkForRookBishopQueenCheck(King king, HashMap<String, Pieces> piecesMap, Point direction) {
+        String coordinate;
+        Point positionIncrement = new Point(king.getPosition());
+        boolean isDiagonal = Math.abs(direction.x) == Math.abs(direction.y);
+
+        for(int i = 0; i < 8; i++) {
+            positionIncrement = PointUtils.add(positionIncrement,direction);
+            coordinate = positionIncrement.x + "," + positionIncrement.y;
+
+            // Spielfeldrand
+            if(PointUtils.checkOutsideBoardEdge(positionIncrement)){
+                return false;
+            }
+            Pieces piece = piecesMap.get(coordinate);
+            // keine Figur
+            if(piece == null){
+                continue;
+            }
+            // Eigene Figur
+            if(piece.getColour() == king.getColour()) {
+                return false;
+            }
+            // Potenziell gefährliche gegnerische Figur
+            if(((piece instanceof Bishop && isDiagonal)
+                     || (piece instanceof Rook && !isDiagonal)||
+                    piece instanceof Queen)) {
+                return true;
+            }
+        }
+        return false; // nichts gefunden
+    }
+
+    private static boolean checkForKnightCheck(King king, HashMap<String, Pieces> piecesMap, Point direction) {
+        String coordinate;
+        Point targetPosition = king.getPosition();
+
+            targetPosition = PointUtils.add(targetPosition,direction);
+            coordinate = targetPosition.x + "," + targetPosition.y;
+            if(PointUtils.checkOutsideBoardEdge(targetPosition)){
+                return false;
+            }
+        return piecesMap.get(coordinate) instanceof Knight && piecesMap.get(coordinate).getColour() != king.getColour();
+    }
+
+    private static ArrayList<Point> checkForPawnCheck(King king, HashMap<String, Pieces> piecesMap) {
+        int y = (king.getColour() == 'w') ? -1:1;
+        ArrayList<Point> threatDir = new ArrayList<>();
+        Point west = PointUtils.add(new Point(-1,y),king.getPosition());
+        Point east = PointUtils.add(new Point(1,y),king.getPosition());
+        String westCoordinate = west.x + "," + west.y;
+        String eastCoordinate = east.x + "," + east.y;
+
+        if(piecesMap.get(westCoordinate) instanceof Pawn && piecesMap.get(westCoordinate).getColour() != king.getColour()){
+            threatDir.add(west);
+        }
+        if(piecesMap.get(eastCoordinate) instanceof Pawn && piecesMap.get(eastCoordinate).getColour() != king.getColour()){
+            threatDir.add(east);
+        }
+        return threatDir;
+    }
+
 }

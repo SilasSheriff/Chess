@@ -1,13 +1,16 @@
 package org.chess.model;
 
 
-import org.chess.util.FiguresUtils;
+import org.chess.util.BishopUtils;
+import org.chess.util.PieceUtils;
+import org.chess.util.PointUtils;
 import org.chess.util.RookUtils;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Rook implements Figures{
+public class Rook implements Pieces {
     private final Point position;
     private boolean mayBeat = false;
     private final char colour;
@@ -24,35 +27,57 @@ public class Rook implements Figures{
     }
 
     @Override
-    public int move(HashMap<String,Figures> figuresMap) {
-        HashMap<String,String> directionDistanceMap = RookUtils.checkPossibleMove(this,figuresMap);
+    public int move(HashMap<String, Pieces> piecesMap) {
+        mayBeat = false;
+        HashMap<String,String> directionDistanceMap = RookUtils.checkPossibleMove(this, piecesMap);
+        if (directionDistanceMap.isEmpty()){
+            return -1;
+        }
 
         String input = RookUtils.askDirectionInput(directionDistanceMap);
-        Point moveVector = FiguresUtils.mapInputToVector(input,directionMap);
+        Point moveVector = PieceUtils.mapInputToVector(input,directionMap);
 
         if (moveVector == null){
             System.out.println("ungültige Richtung");
             return -1;
         }
-
-        this.setMayBeat(false);
-
-        int allowedDistance = RookUtils.calculateAllowedDistance(moveVector,figuresMap,this);
-        if (allowedDistance < 1){
-            System.out.println("Ungültiger Zug");
+        ArrayList<Integer> allowedDistance = RookUtils.calculateAllowedDistance(piecesMap, this,moveVector);
+        if (allowedDistance.isEmpty()){
             return -1;
         }
 
-        int distance = RookUtils.askDistanceInput(allowedDistance,this);
-        if(distance > allowedDistance){
-            System.out.println("Zu weit");
+        int distance = RookUtils.askDistanceInput(allowedDistance);
+        if(! allowedDistance.contains(distance)){
+            System.out.println("Ungültige Distanz");
             return -1;
         }
 
-        Point translationVector = new Point(moveVector.x *distance,moveVector.y*distance);
-        FiguresUtils.updatePosition(this,figuresMap,translationVector);
+        Point translationVector = new Point(moveVector.x * distance,moveVector.y*distance);
+        PieceUtils.updatePosition(this, piecesMap,translationVector);
 
     return 0;
+    }
+
+    @Override
+    public boolean movePossible(HashMap<String,Pieces> piecesMap){
+        ArrayList<Point> dir = PointUtils.diagonal();
+        for (Point p : dir){
+            ArrayList<Integer> allowed = RookUtils.calculateAllowedDistance(piecesMap,this,p);
+            if(allowed != null && !allowed.isEmpty()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    @Override
+    public Rook clone(){
+        Point clonedPosition = new Point(this.position.x,this.position.y);
+        Rook clonedRook = new Rook(clonedPosition,this.colour);
+        clonedRook.mayBeat = this.mayBeat;
+        clonedRook.wasMoved = this.wasMoved;
+        return clonedRook;
     }
 
     @Override
