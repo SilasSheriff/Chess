@@ -57,7 +57,6 @@ public class King implements Pieces {
 
     @Override
     public boolean movePossible(HashMap<String,Pieces> piecesMap){
-        int max = 0;
         ArrayList<Point> dir = PointUtils.straightAndDiagonal();
         for (Point p : dir){
             if(KingUtils.isLegalMove(piecesMap,this,p)){

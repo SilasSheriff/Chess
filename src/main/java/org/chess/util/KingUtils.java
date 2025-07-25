@@ -114,6 +114,10 @@ public class KingUtils {
                     piece instanceof Queen)) {
                 return true;
             }
+            // Ungefährliche gegnerische Figur
+            if(piece.getColour() != king.getColour()){
+                return false;
+            }
         }
         return false; // nichts gefunden
     }

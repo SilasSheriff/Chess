@@ -1,6 +1,5 @@
 package org.chess.model;
 
-import org.chess.util.BishopUtils;
 import org.chess.util.PieceUtils;
 import org.chess.util.KnightUtils;
 import org.chess.util.PointUtils;

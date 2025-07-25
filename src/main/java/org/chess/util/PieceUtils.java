@@ -17,7 +17,7 @@ public class PieceUtils {
         int x = piece.getPosition().x;
         int y = piece.getPosition().y;
         // Definiere die Maximalreichweite
-        int maxRange = (piece instanceof King) ? 1: 7 ;
+        int maxRange = (piece instanceof King) ? 1 : 7 ;
         // Erstellung des Koordinaten Strings des Ursprungs
         String fromCoord = x + "," + y;
 

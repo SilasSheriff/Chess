@@ -215,10 +215,10 @@ public class BoardUtils {
 
 
         King kingS = new King(new Point(0,7),'s');
-        King kingW = new King(new Point(6,2),'w');
+        King kingW = new King(new Point(2,5),'w');
 
-        Rook rookW = new Rook(new Point(4,2),'w');
-        Rook rookS = new Rook(new Point(1,2),'s');
+        Rook rookW = new Rook(new Point(1,6),'w');
+        Rook rookS = new Rook(new Point(3,2),'s');
 
         pieces.add(kingS);
         pieces.add(kingW);
