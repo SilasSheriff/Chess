@@ -62,7 +62,7 @@ public class BoardUtils {
 
     public static int chooseFigureToMove(HashMap<String, Pieces> piecesMap, String activePlayer){
         Scanner scanner = new Scanner(System.in);
-        System.out.println(activePlayer +  ", wähle Sie die Figur, die sie bewegen möchten. " +
+        System.out.println(activePlayer +  ", wählen Sie die Figur, die sie bewegen möchten. " +
                 "\n für eine Rochade: <KlRochade> bzw. <GrRochade>");
         String input = scanner.nextLine().trim().toLowerCase();
 
