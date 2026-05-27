@@ -14,7 +14,6 @@ public class Main {
             Game firstGame = new Game(piecesMap);
 
             firstGame.playGame();
-
         }
 
 

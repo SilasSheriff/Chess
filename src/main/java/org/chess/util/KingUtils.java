@@ -67,13 +67,14 @@ public class KingUtils {
     public static ArrayList<Point> threatDirections(King king, HashMap<String,Pieces> piecesMap){
         ArrayList<Point> threatDirections = new ArrayList<>();
         boolean threats;
+        // Überprüfe, ob eine Figur mit diagonaler oder gerader Bewegung den König Schach stellt.
         for (Point dir : PointUtils.straightAndDiagonal()){
              threats = checkForRookBishopQueenCheck(king,piecesMap,dir);
              if(threats){
                  threatDirections.add(dir);
              }
         }
-
+        // Überprüfe, ob der König durch einen Springer im Schach steht.
         for (Point dir : PointUtils.knightsDirections()){
             threats = checkForKnightCheck(king,piecesMap,dir);
             if (threats){

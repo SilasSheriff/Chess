@@ -178,6 +178,7 @@ public class BoardUtils {
         pieces.add(knightS1);
         pieces.add(knightS2);
 
+
         Knight knightW1 = new Knight(new Point(1,7),'w');
         Knight knightW2 = new Knight(new Point(6,7),'w');
 

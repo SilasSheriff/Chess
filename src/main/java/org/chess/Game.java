@@ -5,7 +5,6 @@ import org.chess.model.Pieces;
 import org.chess.model.King;
 import org.chess.util.BoardUtils;
 import org.chess.util.KingUtils;
-import org.chess.util.PointUtils;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -28,13 +27,10 @@ public class Game {
     // Abspielen eines Spiels
     public void playGame(){
         String end = "N";
-
         Scanner scanner = new Scanner(System.in);
         BoardUtils.displayBoard(piecesMap);
         while (!end.equalsIgnoreCase("j")){
-
             handleCheck();
-
             int gameStatus = handleCheckMateAndStalemate();
             if(gameStatus == 1){
                 System.out.println("Schachmatt " + activePlayer);
